@@ -1,0 +1,46 @@
+create external table if not exists emp_acid
+(
+id int,
+name string,
+sal int,
+city string
+)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+tblproperties("skip.header.line.count"="1");
+
+load data local inpath '/home/saif/LFS/emp_acid.txt' into table emp_acid;
+
+set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+set hive.support.concurrency=true;
+set hive.enforce.bucketing=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+If needed:
+set hive.compactor.initiator.on=true;
+set hive.compactor.worker.threads=1;
+
+create table if not exists emp_acid_orc
+(
+id int,
+name string,
+sal int,
+city string
+)
+clustered by (id) into 4 buckets
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as orc
+tblproperties("transactional"="true");
+
+Load Data from stg to ACID Tables:
+insert overwrite table emp_acid_orc select * from emp_acid;
+select * from emp_acid_orc;
+
+Insert:
+insert into emp_acid_orc values (104,'vazir',400,'pune');
+Update:
+update emp_acid_orc set sal = 999 where id = 101;
+Delete:
+delete from emp_acid_orc where id = 104;
