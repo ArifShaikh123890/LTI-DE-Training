@@ -1,0 +1,3 @@
+id,name,sal,city
+101,arif,1000,pune
+102,saif,2000,hyd
