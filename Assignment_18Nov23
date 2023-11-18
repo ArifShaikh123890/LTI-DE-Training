@@ -1,0 +1,42 @@
+Unix Questions:
+1) How to display the 10th line of a file?
+2) How to remove the header from a file?
+3) How to remove the footer from a file?
+4) Write a command to find the length of a line in a file?
+5) How to get the nth word of a line in a file?
+
+Hadoop Questions:
+1) Problem Scenario:
+There is a parent organization called "ABC Group Inc", which has two child companies named Tech Inc and MPTech. Both companies employee information is given in two separate text file as below. Please do the following activity for employee details. 
+Techinc.txt - 1,Alok,Hyderabad 2,Krish,Hongkong 3,Jyoti,Mumbai 4,Atul,Banglore 5,Ishan,Gurgaon 
+MPTech.txt - 6,John,Newyork 7,alp2004,California 8,tellme,Mumbai 9,Gagan21,Pune 10,Mukesh,Chennai 
+a) Which command will you use to check all the available command line options on HDFS and How will you get the Help for individual command. 
+b) Create a new Empty Directory named Employee using Command line. And also create an empty file named in it Techinc.txt 
+c) Load both companies Employee data in Employee directory (How to override existing file in HDFS). 
+d) Merge both the Employees data in a Single tile called MergedEmployee.txt, merged files should have new line character at the end of each file content. 
+e) Upload merged file on HDFS and change the file permission on HDFS merged file, so that owner and group member can read and write, other user can read the file.
+f) Write a command to export the individual file as well as entire directory from HDFS to local file System.
+
+Sqoop Questions:
+1) Import below column data from retail_db to HDFS file system under directory ORDER_PRODUCT_PRICE.
+Preview the count from the part files.
+Output Record count: 172198.
++------------+-----------------------------------------------+-----------------------+--------------------------+
+| product_id | product_name                                  | order_item_product_id | order_item_product_price |
++------------+-----------------------------------------------+-----------------------+--------------------------+
+|        957 | Diamondback Women's Serene Classic Comfort Bi |                   957 |                   299.98 |
+|       1073 | Pelican Sunstream 100 Kayak                   |                  1073 |                   199.99 |
+|        502 | Nike Men's Dri-FIT Victory Golf Polo          |                   502 |                       50 |
+|        403 | Nike Men's CJ Elite 2 TD Football Cleat       |                   403 |                   129.99 |
+|        897 | Team Golf New England Patriots Putter Grip    |                   897 |                    24.99 |
++------------+-----------------------------------------------+-----------------------+--------------------------+
+
+Hive Questions:
+1) Create Hive table using below file data and write a query to display all the Laptop records.
+File_Name: array_file.txt
+id,name,sal,assets,city
+1,arif,40000,laptop$mouse$ph,hyd
+2,manas,3000,laptop$mouse,pune,
+3,saif,40000,a$b$c,hyd
+4,ram,3000,d$f,pune
+5,mitali,5000,hello$world,pimple
