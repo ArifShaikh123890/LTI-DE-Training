@@ -1,0 +1,221 @@
+*****************************************************************************************************
+Default Location: /user/hive/warehouse/
+set hive.cli.print.current.db=true;
+set hive.cli.print.header=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+*****************************************************************************************************
+				****Load data from Local to Hive*****
+*****************************************************************************************************
+1) Managed Table:
+
+create table movies_tbl
+(
+movieId int,
+title string,
+genres string
+) 
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+tblproperties('skip.header.line.count'='1');
+
+load data local inpath '/home/labuser/LFS/datasets/movies.csv' into table movies_tbl;
+*****************************************************************************************************
+				*****Load data from Hadoop to Hive*****
+*****************************************************************************************************
+create table movies_tbl1
+(
+movieId int,
+title string,
+genres string
+) 
+row format delimited fields terminated by ','
+tblproperties('skip.header.line.count'='1');
+
+hdfs dfs -copyFromLocal movies.csv /user/labuser/HFS/Input/
+load data inpath '/user/labuser/HFS/Input/movies.csv' into table movies_tbl1;
+*****************************************************************************************************
+				*****External Tables*****
+*****************************************************************************************************
+2) External Tables:
+
+create external table ext_movies_tbl
+(
+movieId int,
+title string,
+genres string
+)
+row format delimited fields terminated by ','
+tblproperties('skip.header.line.count'='1');
+
+load data inpath '/user/labuser/HFS/Input/movies.csv' into table ext_movies_tbl;
+load data inpath '/user/labuser/HFS/Input/movies.csv' into table ext_movies_tbl;
+
+load data inpath '/user/labuser/HFS/Input/movies.csv' overwrite into table ext_movies_tbl;
+*****************************************************************************************************
+				*****Location*****
+*****************************************************************************************************
+create external table ext_movies_tbl
+(
+movieId int,
+title string,
+genres string
+)
+row format delimited fields terminated by ','
+location '/user/hive/warehouse/saif_db.db/ext_movies_tbl/'
+tblproperties('skip.header.line.count'='1');
+*****************************************************************************************************
+				*****Complex Data Type: Array*****
+*****************************************************************************************************
+create table array_tbl
+(
+id int,
+name string,
+sal int,
+assets array<string>,
+city string
+)
+row format delimited fields terminated by ','
+collection items terminated by '$'
+tblproperties('skip.header.line.count'='1');
+
+hdfs dfs -copyFromLocal array_file.txt /user/labuser/HFS/Input/
+load data inpath '/user/labuser/HFS/Input/array_file.txt' into table array_tbl;
+
+hdfs dfs -mkdir /user/labuser/HFS/Input/array
+hdfs dfs -put array_file /user/labuser/HFS/Input/array/
+
+create table array_tbl_loc
+(
+id int,
+name string,
+sal int,
+assets array<string>,
+city string
+)
+row format delimited fields terminated by ','
+collection items terminated by '$'
+location '/user/labuser/HFS/Input/array/'
+tblproperties('skip.header.line.count'='1');
+*****************************************************************************************************
+				*****Complex Data Type: Map*****
+*****************************************************************************************************
+create table map_tbl
+(id int,
+name string,
+sal int,
+lappy_info array<string>,
+pf_info map<string, int>,
+city string)
+row format delimited fields terminated by ','
+collection items terminated by '$'
+map keys terminated by '#'
+tblproperties('skip.header.line.count'='1');
+
+hdfs dfs -copyFromLocal map_file.txt /user/labuser/HFS/Input/
+load data inpath '/user/labuser/HFS/Input/map_file.txt' into table map_tbl;
+*****************************************************************************************************
+				*****Complex Data Type: Struct*****
+*****************************************************************************************************
+create table struct_tbl
+(
+id int,
+name string,
+sal int,
+subject array<string>, 
+deduction map<string, int>,
+address struct<state:string, city: string, pincode: int>
+)
+row format delimited fields terminated by ','
+collection items terminated by '$'
+map keys terminated by '#'
+location '/user/labuser/HFS/Input/struct/'
+tblproperties('skip.header.line.count'='1');
+
+select subject[1] as subject, deduction['epf'] as deduction, address.state as address from struct_tbl;
+************************************************************************************************
+				*****Static Partitions*****
+************************************************************************************************
+1st Approach: When Client sents data in different files:
+create table stc_prtn
+(
+id int,
+name string,
+sal int
+)
+partitioned by (country string)
+row format delimited fields terminated by ','
+tblproperties('skip.header.line.count'='1');
+
+load data local inpath '/home/labuser/LFS/datasets/emp_ind.txt' into table stc_prtn partition (country='IN');
+load data local inpath '/home/labuser/LFS/datasets/emp_uk.txt' into table stc_prtn partition (country='UK');
+load data local inpath '/home/labuser/LFS/datasets/emp_us.txt' into table stc_prtn partition (country='US');
+
+2nd Approach: Client is sending all the data in 1 file
+create table stc_prtn_all
+(
+id int,
+name string,
+sal int
+)
+partitioned by (country string)
+row format delimited fields terminated by ','
+tblproperties('skip.header.line.count'='1');
+
+load data local inpath '/home/labuser/LFS/datasets/emp_partition_all.txt' into table stc_prtn_all partition (country='IN');
+
+Problem:
+All countries data is loaded into one partition.
+
+Solution:
+1) Create Temp/Stg Table
+2) Load Data into Temp/Stg table
+3) Create Partitioned Table
+4) Load Data into Partitioned Table from Temp/Stg
+
+create table stg_country
+(
+id int,
+name string,
+sal int,
+country string
+)
+row format delimited fields terminated by ','
+tblproperties('skip.header.line.count'='1');
+
+load data local inpath '/home/labuser/LFS/datasets/emp_partition_all.txt' into table stg_country;
+
+create table stc_prtn_all_1
+(
+id int,
+name string,
+sal int
+)
+partitioned by (country string)
+row format delimited fields terminated by ',';
+
+insert into table stc_prtn_all_1 partition (country='IN') select id, name, sal from stg_country where country = 'IN';
+insert into table stc_prtn_all_1 partition (country='UK') select id, name, sal from stg_country where country = 'UK';
+insert into table stc_prtn_all_1 partition (country='US') select id, name, sal from stg_country where country = 'US';
+************************************************************************************************
+				*****Dynamic Partitions*****
+************************************************************************************************
+1) Create Temp/Stg Table		==> Already Created ==> stg_country
+2) Load Data into Temp/Stg table	==> Alread Loaded   ==> select * from stg_country;
+3) Create Partitioned Table		
+4) Load Data into Partitioned Table from Temp/Stg
+
+create table dyn_prtn_all
+(
+id int,
+name string,
+sal int
+)
+partitioned by (country string)
+row format delimited fields terminated by ',';
+
+insert into table dyn_prtn_all partition (country) select id, name, sal, country from stg_country;
+
+Enable this property:
+set hive.exec.dynamic.partition.mode=nonstrict;
+
