@@ -1,0 +1,5 @@
+id,name,sal,lappy_info,pf_info,city
+1,saif,40000,laptop$mouse$bag$extended monitor$ph,pf#500$epf#200,pune
+2,sohail,3000,laptop$mouse$bag$ph,pf#500,hyd
+3,mitali,40000,desktop$mouse$car$extended monitor$ph,pf#500$epf#200,hyd
+4,manas,3000,laptop$mouse$bag$extended monitor$ph,pf#500$epf#300$ppf#686,pune

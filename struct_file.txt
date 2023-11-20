@@ -1,0 +1,3 @@
+id,name,sal,subject,deduction,address
+1,saif,40000,hadoop$spark$scala,pf#500$epf#200,mh$pune$411048
+2,sohail,3000,hive$sqoop,epf#500,mh$hinjewadi$411057
