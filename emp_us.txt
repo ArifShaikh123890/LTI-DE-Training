@@ -1,0 +1,3 @@
+id,name,sal
+103,Mitali,3000
+104,Manas,4000
