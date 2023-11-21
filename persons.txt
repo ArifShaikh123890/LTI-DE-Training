@@ -1,0 +1,65 @@
+db.persons.insert({
+	name: {first: 'Saif', last: 'Shaikh'},
+	gender: 'M',
+	yearOfBirth:1991,
+	livesIn: 'Pune',
+	countriesVisited: ['Singapore','Dubai','Australia','Oman','Qatar'],
+	languages: [{name: 'Hindi', proficiency: 'Fluent'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'German', proficiency: 'Intermediate'}]
+})
+
+db.persons.insert({
+	name: {first: 'Vazir', last: 'Khan'},
+	gender: 'M',
+	yearOfBirth:1981,
+	livesIn: 'Pune',
+	countriesVisited: ['UK','Dubai','Singapore','Australia','Oman','Qatar','Goa'],
+	languages: [{name: 'Hindi', proficiency: 'Fluent'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'Arabi', proficiency: 'Fluent'}]
+})
+
+db.persons.insert({
+	name: {first: 'Nidhi', last: 'Sharma'},
+	gender: 'F',
+	yearOfBirth:1990,
+	livesIn: 'Bangalore',
+	countriesVisited: ['Goa','Mumbai','Hyderabad'],
+	languages: [{name: 'Hindi', proficiency: 'Intermediate'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'Arabi', proficiency: 'Fluent'}]
+})
+
+db.persons.insert({
+	name: {first: 'Vineeta', last: 'Sharma'},
+	gender: 'F',
+	yearOfBirth:1992,
+	livesIn: 'Bangalore',
+	countriesVisited: ['Turkey', 'Goa','Mumbai','Hyderabad', 'Delhi'],
+	languages: [{name: 'Hindi', proficiency: 'Intermediate'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'Marathi', proficiency: 'Basic'}]
+})
+
+db.persons.insert({
+	name: {first: 'Sachin', last: 'Tendulkar'},
+	gender: 'M',
+	yearOfBirth:1973,
+	livesIn: 'Mumbai',
+	countriesVisited: ['US', 'UK', 'Australia', 'Sri lanka', 'New Zealand', 'Turkey', 'Goa','Mumbai','Hyderabad', 'Delhi', 'Singapore'],
+	languages: [{name: 'Hindi', proficiency: 'Intermediate'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'Marathi', proficiency: 'Fluent'}]
+})
+
+db.persons.insert({
+	name: {first: 'Virat', last: 'Kohli'},
+	gender: 'M',
+	yearOfBirth:1988,
+	livesIn: 'Mumbai',
+	countriesVisited: ['US', 'UK', 'Australia', 'Sri lanka', 'Singapore'],
+	languages: [{name: 'Hindi', proficiency: 'Intermediate'},
+		{name: 'English', proficiency: 'Fluent'},
+		{name: 'Marathi', proficiency: 'Fluent'}]
+})
