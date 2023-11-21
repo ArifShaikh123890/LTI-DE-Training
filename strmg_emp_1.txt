@@ -1,0 +1,4 @@
+emp_id,emp_name,job_name,mgr_id,salary,dept_name
+1025,'Saif','Trainer',211,5000,'training'
+1015,'Nitin','Developer',211,4000,'development'
+211,'Vazir','Khan',105,50000,'operations'
