@@ -260,3 +260,164 @@ select * from emp_bucket limit 10;
 select * from emp_bucket tablesample (bucket 1 out of 4) limit 10;
 select * from emp_bucket tablesample (bucket 1 out of 4 on street) limit 10;
 ************************************************************************************************
+					*****Joins*****
+************************************************************************************************
+--> customers.txt
+ID,Name,Age,Address,Salary
+1,Ross,32,Ahmedabad,2000
+2,Rachel,25,Delhi,1500
+3,Chandler,23,Kota,2000
+4,Monika,25,Mumbai,6500
+5,Mike,27,Bhopal,8500
+6,Phoebe,22,MP,4500
+7,Joey,24,Indore,10000
+
+--> customers_join
+create table if not exists customers_join
+(
+id int,
+name string,
+age int,
+address string,
+salary int
+)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+tblproperties("skip.header.line.count"="1");
+
+load data local inpath '/home/cloudera/LFS/customers.txt' into table customers_join;
+
+--> orders.txt
+OID,Date,Customer_ID,Amount
+102,2016-10-08 00:00:00,3,3000
+100,2016-10-08 00:00:00,3,1500
+101,2016-11-20 00:00:00,2,1560
+103,2015-05-20 00:00:00,4,2060
+
+--> orders_join
+create table if not exists orders_join
+(
+oid int,
+ord_date timestamp,
+customer_id int,
+amount int
+)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+tblproperties("skip.header.line.count"="1");
+
+load data local inpath '/home/cloudera/LFS/orders.txt' into table orders_join;
+
+1) Inner Join:
+select c.id, c.name, c.age, o.amount
+from customers_join c join orders_join o
+on c.id = o.customer_id;
+
+2) Left Outer Join:
+select c.id, c.name, o.amount, o.ord_date
+from customers_join c
+left outer join orders_join o
+on c.id = o.customer_id;
+
+3) Right Outer Join:
+select c.id, c.name, o.amount, o.ord_date from customers_join c
+right outer join orders_join o
+on c.id = o.customer_id;
+
+4) Full Outer Join:
+select c.id, c.name, o.amount, o.ord_date
+from customers_join c
+full outer join orders_join o
+on c.id = o.customer_id;
+
+--> order_item.txt
+oid,ord_date,items,amount
+102,2016-10-08 00:00:00,Pizza,3000
+102,2016-10-08 00:00:00,Juice,3000
+100,2016-10-08 00:00:00,Biryani,1500
+101,2016-11-20 00:00:00,Paneer,1560
+103,2015-05-20 00:00:00,Momos,2060
+
+create table if not exists order_item_join
+(
+oid int,
+ord_date timestamp,
+items string,
+amount int
+)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/cloudera/HFS/Input/order_item/'
+tblproperties("skip.header.line.count"="1");
+
+hdfs dfs -put order_item.txt /user/cloudera/HFS/Input/order_item/
+
+5) Joining 3 tables: First 2 tables with Inner join and the result set with the 3rd table via left outer join.
+select c.id, c.name, c.age, o.amount, oi.items
+from customers_join c join orders_join o
+on c.id = o.customer_id
+left outer join order_item_join oi
+on oi.oid=o.oid;
+
+View:
+CREATE VIEW IF NOT EXISTS V1 AS
+select c.id, c.name, c.age, o.amount, oi.items
+from customers_join c join orders_join o
+on c.id = o.customer_id
+left outer join order_item_join oi
+on oi.oid=o.oid;
+
+SELECT * FROM V1;
+************************************************************************************************
+					*****ACID Properties*****
+************************************************************************************************
+create external table if not exists emp_acid
+(
+id int,
+name string,
+sal int,
+city string
+)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+tblproperties("skip.header.line.count"="1");
+
+load data local inpath '/home/saif/LFS/emp_acid.txt' into table emp_acid;
+
+set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+set hive.support.concurrency=true;
+set hive.enforce.bucketing=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+If needed:
+set hive.compactor.initiator.on=true;
+set hive.compactor.worker.threads=1;
+
+create table if not exists emp_acid_orc
+(
+id int,
+name string,
+sal int,
+city string
+)
+clustered by (id) into 4 buckets
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as orc
+tblproperties("transactional"="true");
+
+Load Data from stg to ACID Tables:
+insert overwrite table emp_acid_orc select * from emp_acid;
+select * from emp_acid_orc;
+
+Insert:
+insert into emp_acid_orc values (104,'vazir',400,'pune');
+Update:
+update emp_acid_orc set sal = 999 where id = 101;
+Delete:
+delete from emp_acid_orc where id = 104;
+
