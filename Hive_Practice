@@ -372,9 +372,18 @@ on oi.oid=o.oid;
 
 SELECT * FROM V1;
 ************************************************************************************************
-					*****ACID Properties*****
+				*****ACID Properties*****
 ************************************************************************************************
-create external table if not exists emp_acid
+1) Tables should be orc
+2) Tables should be bucketed
+3) Transactional Property shoule be set to true ==> "transactional"="true"
+4) Tables cannot be external
+5) Once Acidic tables are created they cannot be reverted to non-acidic
+6) In a session if you have created Acidic tables you cannot access those tables from other sessions
+7) We cannot use load command to load data
+8) INSERT OVERWRITE not allowed on table with OutputFormat that implements AcidOutputFormat while transaction manager that supports ACID is in use
+
+create external table stg_emp_acid
 (
 id int,
 name string,
@@ -382,22 +391,16 @@ sal int,
 city string
 )
 row format delimited fields terminated by ','
-lines terminated by '\n'
-stored as textfile
 tblproperties("skip.header.line.count"="1");
 
-load data local inpath '/home/saif/LFS/emp_acid.txt' into table emp_acid;
+load data local inpath '/home/labuser/LFS/emp_acid.txt' into table stg_emp_acid;
 
 set hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
 set hive.support.concurrency=true;
 set hive.enforce.bucketing=true;
 set hive.exec.dynamic.partition.mode=nonstrict;
 
-If needed:
-set hive.compactor.initiator.on=true;
-set hive.compactor.worker.threads=1;
-
-create table if not exists emp_acid_orc
+create table emp_acid_orc
 (
 id int,
 name string,
@@ -406,12 +409,14 @@ city string
 )
 clustered by (id) into 4 buckets
 row format delimited fields terminated by ','
-lines terminated by '\n'
 stored as orc
 tblproperties("transactional"="true");
 
 Load Data from stg to ACID Tables:
-insert overwrite table emp_acid_orc select * from emp_acid;
+insert overwrite table emp_acid_orc select * from stg_emp_acid;
+It gives error: overwrite is not allowed
+
+insert into table emp_acid_orc select * from stg_emp_acid;
 select * from emp_acid_orc;
 
 Insert:
@@ -420,4 +425,5 @@ Update:
 update emp_acid_orc set sal = 999 where id = 101;
 Delete:
 delete from emp_acid_orc where id = 104;
+
 
