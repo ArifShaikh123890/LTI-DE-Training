@@ -218,4 +218,45 @@ insert into table dyn_prtn_all partition (country) select id, name, sal, country
 
 Enable this property:
 set hive.exec.dynamic.partition.mode=nonstrict;
+************************************************************************************************
+					*****Bucketing*****
+************************************************************************************************
+create table stg_emp_bucket
+(
+street string,
+city string,
+zip int,
+state string,
+beds int,
+baths int,
+sq_ft int,
+type string,
+price int
+)
+row format delimited fields terminated by ','
+tblproperties("skip.header.line.count"="1");
 
+load data local inpath '/home/labuser/LFS/datasets/emp_bucket.txt' into table stg_emp_bucket;
+
+create table emp_bucket
+(
+street string,
+zip int,
+state string,
+beds int,
+baths int,
+sq_ft int,
+type string,
+price int
+)
+partitioned by (city string)
+clustered by (street) into 4 buckets
+row format delimited fields terminated by ',';
+
+insert into table emp_bucket partition (city) select street, zip, state, beds, baths, sq_ft, type, price, city from stg_emp_bucket;
+
+Table Sampling:
+select * from emp_bucket limit 10;
+select * from emp_bucket tablesample (bucket 1 out of 4) limit 10;
+select * from emp_bucket tablesample (bucket 1 out of 4 on street) limit 10;
+************************************************************************************************
