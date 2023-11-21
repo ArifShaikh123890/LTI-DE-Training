@@ -19,21 +19,21 @@ query = wordsCount.writeStream.outputMode("complete").format("console").start()
 			File streaming:
 ******************************************************************************************
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import
+from pyspark.sql.functions import *
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
 
-spark = SparkSession.builder.appName('File Streaming').config('spark.sql.shuffle.partitions'='2').master(local['*']).getOrCreate()
+spark = SparkSession.builder.appName('File Streaming').config('spark.sql.shuffle.partitions','2').master('local[*]').getOrCreate()
 
-schema = StructType([StructField(emp_id, IntegerType(), True),
-		StructField(emp_id, IntegerType(), True),
-		StructField(emp_id, IntegerType(), True),
-		StructField(emp_id, IntegerType(), True),
-		StructField(emp_id, IntegerType(), True),
-		StructField(emp_id, IntegerType(), True)])
+schema = StructType([StructField('emp_id', IntegerType(), True),
+		StructField('emp_name', StringType(), True),
+		StructField('job_name', StringType(), True),
+		StructField('magr_id', IntegerType(), True),
+		StructField('salary', IntegerType(), True),
+		StructField('dept_name', StringType(), True)])
 
-custDf = spark.readStream.format('csv').schema(schema).option('header',True).load()
+custDf = spark.readStream.format('csv').schema(schema).option('header',True).load('hdfs://cdhserver:8020/user/labuser/HFS/Input/streaming/')
 
-empCnt = empDf.groupBy('job_name').count()
+empCnt = custDf.groupBy('job_name').count()
 
 empCnt.writeStream.outputMode("complete").format("console").start().awaitTermination()
 ******************************************************************************************
