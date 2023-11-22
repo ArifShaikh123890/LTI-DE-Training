@@ -1,0 +1,126 @@
+WordCount Program in RDD:
+
+Step 1: Read a file from hadoop:
+readRdd = sc.textFile('hdfs://cdhserver:8020/user/labuser/HFS/Input/wordcount.txt')
+type(readRdd)
+readRdd.collect()
+
+Step 2: Split the RDD:
+splitRdd = readRdd.flatMap(lambda line: line.split(' '))
+splitRdd.collect()
+
+Step 3: Assign default value 1
+assignRdd = splitRdd.map(lambda w: (w, 1))
+assignRdd.collect()
+
+(saif,1),(saif,1),(saif,1),(saif,1),(saif,1)
+	     	2	3	 4	5
+
+Step 4: Perform count:
+wcRdd = assignRdd.reduceByKey(lambda a,b: a + b)
+wcRdd.collect()
+
+Step 5: Write data to HDFS:
+wcRdd.saveAsTextFile('hdfs://cdhserver:8020/user/labuser/HFS/Output/wc_repl')
+hdfs dfs -ls /user/labuser/HFS/Output/wc_repl
+********************************************************************************************
+				******Word Count in PyCharm*****
+********************************************************************************************
+from pyspark import SparkContext
+from pyspark import SparkConf
+
+if __name__ == '__main__':
+    sparkConf = (SparkConf().setAppName('WordCont').setMaster('local[*]'))
+    sc = SparkContext(conf=sparkConf)
+
+    readRdd = sc.textFile('hdfs://cdhserver:8020/user/labuser/HFS/Input/wordcount.txt')
+    splitRdd = readRdd.flatMap(lambda line: line.split(' '))
+    assignRdd = splitRdd.map(lambda w: (w, 1))
+    wcRdd = assignRdd.reduceByKey(lambda a, b: a + b)
+
+    wcRdd.saveAsTextFile('hdfs://cdhserver:8020/user/labuser/HFS/Output/wc_pc')
+********************************************************************************************
+				******DataFrames*****
+********************************************************************************************
+1) Read and Write File from Hadoop to Hadoop:
+from pyspark.sql import SparkSession
+
+if __name__ == '__main__':
+    spark = SparkSession.builder \
+            .appName('Read Write DF').master('local[*]') \
+            .getOrCreate()
+
+    moviesDf = spark.read.format('csv')\
+        .option('header','true')\
+        .load('hdfs://cdhserver:8020/user/labuser/HFS/Input/movies.csv')
+    # moviesDf.show(5, truncate=False)
+
+    moviesDf.write\
+        .save('hdfs://cdhserver:8020/user/labuser/HFS/Output/movies_op')
+************************************************************************************************
+				*****Different Write Modes*****
+************************************************************************************************
+Error: By Default. If your dir is not available it will create else it will give an error.
+Ignore: If your dir is available it will ignore else it will create.
+Append: It will add new files to your existing directory
+Overwrite: It will truncate & load.
+************************************************************************************************
+				*****Filter DataFrame*****
+************************************************************************************************
+1) Filter Single Column:
+# from pyspark.sql.functions import col
+filDf1 = moviesDf.filter(col('movieId') == 3)
+filDf2 = moviesDf.filter(moviesDf['movieId'] == 3)
+2) Filter Multiple Columns:
+filDf3 = moviesDf\
+    .filter((moviesDf['movieId'] == 3) | (moviesDf['genres'] == 'Comedy'))
+# filDf3.show(5)
+3) Filter Multiple Values:
+filDf4 = moviesDf.filter(moviesDf['movieId'].isin(3,5))
+filDf4.show(5)
+************************************************************************************************
+				*****Order By DataFrame*****
+************************************************************************************************
+1) Order By:
+ordDf = moviesDf.orderBy(moviesDf['movieId'].desc(),
+                         moviesDf['genres'].asc())
+ordDf.show(5)
+************************************************************************************************
+				*****Group By DataFrame*****
+************************************************************************************************
+1) Group By Single Column:
+grpDf1 = myDf.groupBy(myDf['empdept']).sum('salary')
+2) Group By Multiple Column:
+grpDf3 = myDf.groupBy(myDf['empdept'], myDf['state']).agg(sum('salary').alias('Sum_Salary'),
+                                           min('salary').alias('Min_Salary'))
+3) Multiple Aggregations:
+grpDf2 = myDf.groupBy(myDf['empdept']).agg(sum('salary').alias('Sum_Salary'),
+                                           min('salary').alias('Min_Salary'))
+************************************************************************************************
+				*****WithColumn DataFrame*****
+************************************************************************************************
+1) Using WithColumn: Add Column 
+addColDf1 = myDf.withColumn('New_Col', lit('Test'))
+addColDf1.show()
+addColDf2 = myDf.withColumn('New_Col',myDf['salary'] * 2)
+addColDf2.show()
+2) Using WithColumn: Change Data Type
+addColDf3 = myDf.withColumn('salary',myDf['salary'].cast('String'))
+addColDf3.printSchema()
+3) Using WithColumn: Update existing cols based on computation
+addColDf4 = myDf.withColumn('salary',myDf['salary'] * 2)
+addColDf4.show()
+************************************************************************************************
+				*****WithColumnRenamed DataFrame*****
+************************************************************************************************
+1) Renaming a Single Column:
+addColDf1 = myDf.withColumnRenamed('salary', 'LTI_Salary')
+addColDf1.show()
+2) Renaming Multiple Columns:
+addColDf2 = myDf.withColumnRenamed('salary', 'LTI_Salary')\
+		.withColumnRenamed('bonus', 'LTI_Bonus')
+addColDf2.show()
+************************************************************************************************
+				*****WithColumnRenamed DataFrame*****
+************************************************************************************************
+
