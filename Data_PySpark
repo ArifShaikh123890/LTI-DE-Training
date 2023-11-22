@@ -1,0 +1,70 @@
+--> where:
+    arrayData = [
+        (("Saif", "", "Shaikh"), ["English", "Science", "Maths"], "HYD", "M"),
+        (("Ram", "Sachin", ""), ["Spark", "English", "Maths"], "BLR", "F"),
+        (("Aniket", "", "Mishra"), ["Civics", "History"], "HYD", "F"),
+        (("Mitali", "Sahil", "Kashiv"), ["Civics", "History"], "BLR", "M"),
+        (("Zaid", "Riyaz", "Shaikh"), ["Civics", "History"], "BLR", "M"),
+        (("Sufi", "Alim", "Shaikh"), ["Hindi", "History"], "HYD", "M")]
+
+--> orderBy, groupBy:
+    orderingData = [("Saif", "Sales", "HYD", 90000, 34, 10000),
+                  ("Ram", "Sales", "HYD", 86000, 56, 20000),
+                  ("Aniket", "Sales", "MUM", 81000, 30, 23000),
+                  ("Saima", "Finance", "MUM", 90000, 24, 23000),
+                  ("Sufiyan", "Finance", "MUM", 99000, 40, 24000),
+                  ("Alim", "Finance", "HYD", 83000, 36, 19000),
+                  ("Mitali", "Finance", "HYD", 79000, 53, 15000),
+                  ("Neha", "Marketing", "MUM", 80000, 25, 18000),
+                  ("Kajal", "Marketing", "HYD", 91000, 50, 21000)]
+
+--> withColumn:
+    data = [('Saif', '', 'Shaikh', '1991-04-01', 'M', 3000),
+            ('Ram', 'Sachin', '', '2000-05-19', 'M', 4000),
+            ('Aniket', '', 'Mishra', '1978-09-05', 'M', 4000),
+            ('Mitali', 'Sahil', 'Kashiv', '1967-12-01', 'F', 4000),
+            ('Nahid', 'Alim', 'Shaikh', '1980-02-17', 'F', -1)]
+
+--> withColumnRenamed:
+    dataDF = [(('Saif', '', 'Shaikh'), '1991-04-01', 'M', 3000),
+              (('Ram', 'Sachin', ''), '2000-05-19', 'M', 4000),
+              (('Aniket', '', 'Mishra'), '1978-09-05', 'M', 4000),
+              (('Mitali', 'Sahil', 'Kashiv'), '1967-12-01', 'F', 4000),
+              (('Nahid', 'Alim', 'Shaikh'), '1980-02-17', 'F', -1)]
+
+--> union - unionAll:
+    simpleData1 = [("Saif", "Sales", "MUM", 90000, 34, 10000),
+                  ("Aniket", "Sales", "MUM", 86000, 56, 20000),
+                  ("Ram", "Sales", "PUN", 81000, 30, 23000),
+                  ("Mitali", "Finance", "PUN", 90000, 24, 23000)]
+
+    simpleData2 = [("Saif", "Sales", "MUM", 90000, 34, 10000),
+                   ("Mitali", "Finance", "PUN", 90000, 24, 23000),
+                   ("Sufiyan", "Finance", "MUM", 79000, 53, 15000),
+                   ("Alim", "Marketing", "PUN", 80000, 25, 18000),
+                   ("Amit", "Marketing", "MUM", 91000, 50, 21000)]
+
+--> drop - dropDuplicates:
+    data = [("Nitin", "Sales", 3000),
+        ("Mitali", "Sales", 4600),
+        ("Manas", "Sales", 4100),
+        ("Kajal", "Finance", 3000),
+        ("Neha", "Sales", 3000),
+        ("Ram", "Finance", 3300),
+        ("Aniket", "Finance", 3900),
+        ("Shravan", "Marketing", 3000),
+        ("Pramod", "Marketing", 2000),
+        ("Saif", "Sales", 3000)]
+
+--> joins:
+    emp = [(1, "Saif", -1, "2018", "10", "M", 3000),
+           (2, "Ram", 1, "2010", "20", "M", 4000),
+           (3, "Aniket", 1, "2010", "10", "M", 1000),
+           (4, "Mitali", 2, "2005", "10", "F", 2000),
+           (5, "Nahid", 2, "2010", "40", "", -1),
+           (6, "Sufiyan", 2, "2010", "50", "", -1)]
+
+    dept = [("Finance", 10),
+            ("Marketing", 20),
+            ("Sales", 30),
+            ("IT", 40)]
