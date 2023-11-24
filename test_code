@@ -1,0 +1,4 @@
+result = dataFrame.withColumn("New_Title", expr("substring(title, 1, length(title)-6)"))\
+    .withColumn("New_Year", expr("substring(title, -6, 6)"))\
+    .withColumn("New_Year", regexp_replace(col("New_Year"), "[\\(,\\)]", ""))\
+    .withColumn("New_Genres", split(col("genres"), "\\|"))
