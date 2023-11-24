@@ -19,3 +19,8 @@ File_Name: dept_win.txt
 20,RESEARCH,DALLAS
 30,SALES,CHICAGO
 40,OPERATIONS,BOSTON
+
+https://justinsomnia.org/2009/04/the-emp-and-dept-tables-for-mysql/
+
+Output:
+emp_empno, emp_name varchar, mgr_empno, mgr_name, mgr_team_cnt
