@@ -1,0 +1,27 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, split, explode, count, substring, length, expr, regexp_replace
+
+def create_spark_session(an: 'Streaming', m: 'local[*]'):
+    spark = (SparkSession.builder
+             .appName(an).master(m).getOrCreate())
+    return spark
+
+def read_movies(file_path):
+    moviesDf = spark.read.format('csv')\
+                .option('header','true')\
+                .load(file_path)
+    return moviesDf
+file_path = 'hdfs://cdhserver:8020/user/labuser/HFS/Input/movies.csv'
+
+if __name__ == '__main__':
+    spark = create_spark_session('File Streaming', 'local[*]')
+    # print(spark)
+
+    movDf = read_movies(file_path)
+    # movDf.show(5, truncate=False)
+
+    resDf = movDf.withColumn("New_Title", expr("substring(title, 1, length(title)-6)")) \
+        .withColumn("New_Year", expr("substring(title, -6, 6)")) \
+        .withColumn("New_Year", regexp_replace(col("New_Year"), "[\(,\)]", "")) \
+        .withColumn("New_Genres", explode(split(col("genres"), "\|")))
+    resDf.show(5, truncate=False)
