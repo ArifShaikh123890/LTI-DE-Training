@@ -24,3 +24,21 @@ https://justinsomnia.org/2009/04/the-emp-and-dept-tables-for-mysql/
 
 Output:
 emp_empno, emp_name varchar, mgr_empno, mgr_name, mgr_team_cnt
+
+resDf = spark.sql("""SELECT A.EMPNO AS EMP_EMPNO,
+            A.ENAME AS EMP_NAME,
+            B.EMPNO AS MGR_EMPNO,
+            B.ENAME AS MGR_NAME,
+            C.EMP_CNT AS MGR_TEAM_CNT
+          FROM emp A, emp B,
+(SELECT 	A.MGR, 
+	COUNT(A.ENAME) EMP_CNT 
+FROM emp A, emp B 
+WHERE A.MGR=B.EMPNO 
+GROUP BY A.MGR) C
+WHERE A.MGR=B.EMPNO
+AND B.EMPNO = C.MGR""")
+
+resDf.show()
+
+resDf.write.mode('overwrite').format('csv').save('hdfs://cdhserver:8020/user/labuser/HFS/Output/mgr_team_cnt')
