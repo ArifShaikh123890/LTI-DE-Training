@@ -1,7 +1,0 @@
-1) Get the below output using Sqoop with retail_db & write the data to HDFS.
-+-------------+---------------+---------------+----------------------------------------------------------------------------------------------+
-| category_id | category_name | product_price | product_image                                                                                |
-+-------------+---------------+---------------+----------------------------------------------------------------------------------------------+
-|          50 | NFL           |            34 | http://images.acmesports.sports/Nike+Men%27s+Pittsburgh+Pirates+Andrew+McCutchen+2014+MLB... |
-|          50 | NFL           |            50 | http://images.acmesports.sports/Stitches+Men%27s+Pittsburgh+Pirates+Black+Poly+Polo          |
-+-------------+---------------+---------------+----------------------------------------------------------------------------------------------+
