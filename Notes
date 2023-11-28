@@ -1,0 +1,65 @@
+sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo systemctl start docker
+sudo systemctl status docker
+
+sudo docker run hello-world
+
+Name node is in safe mode.
+sudo -u hdfs hdfs dfsadmin -safemode leave
+restart HDFS from cloudera
+*************************************************************************
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import regexp_extract, substring
+from pyspark.sql.types import StructType, StructField, StringType
+
+def create_spark_session():
+    spark = SparkSession.builder.appName('DF EventLog Processing')\
+            .master('local[*]').getOrCreate()
+    return spark
+
+mySchema = StructType([StructField('EventLogs', StringType())])
+def read_eventlog():
+    eventDf = spark.readStream.format('csv')\
+               .schema(mySchema).load('hdfs://cdhserver:8020/user/labuser/streaming/')
+    return eventDf
+
+if __name__ == '__main__':
+    spark = create_spark_session()
+    eventLogDf = read_eventlog()
+    # eventLogDf.show(truncate=False)
+
+    ip_col = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+    dt_col = r'\[(\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} -\d{4})\]'
+    url_col = r'"([^"]*)"'
+    status_col = r'(\d{1,3}\d \d{1,5})$'
+    # status_col = r'(\d{1,3})\d \d{1,5}$'
+    bytes_col = r'(\d{1,5})$'
+    resDf = eventLogDf\
+        .withColumn('ip_address', regexp_extract('EventLogs', ip_col, 0))\
+        .withColumn('ip_date', regexp_extract('EventLogs', dt_col, 1)) \
+        .withColumn('url_data', regexp_extract('EventLogs', url_col, 1)) \
+        .withColumn('status_resp',
+                    substring(regexp_extract('EventLogs', status_col, 1),1,3)) \
+        .withColumn('size_in_bytes', regexp_extract('EventLogs', bytes_col, 1)) \
+        .select('ip_address', 'ip_date', 'url_data', 'status_resp', 'size_in_bytes')
+    # resDf.show(truncate=False)
+
+    result = resDf.writeStream.format('console').option('truncate','False')\
+                    .outputMode('append').start()
+    result.awaitTermination()
+***************************************************************************
+
+
